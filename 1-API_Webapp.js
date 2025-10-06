@@ -1,4 +1,4 @@
-/**
+/*****
  * Fichier: 1-API_WebApp.gs
  * Rôle: Point d'entrée de l'application web. Sert la page principale.
  */
