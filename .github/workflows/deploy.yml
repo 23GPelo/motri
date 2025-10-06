@@ -1,0 +1,40 @@
+# Nom du workflow qui apparaîtra dans l'onglet "Actions" de votre dépôt GitHub
+name: Deploy to Google Apps Script
+
+# --- DÉCLENCHEUR ---
+# Ce workflow se lance automatiquement à chaque fois que vous faites un 'git push'
+# sur la branche 'main' (ou 'master').
+on:
+  push:
+    branches:
+      - vscode # Adaptez à 'master' si votre branche principale a ce nom
+
+# --- TÂCHES À EXÉCUTER ---
+jobs:
+  deploy:
+    # Le robot utilisera une machine virtuelle Ubuntu pour travailler
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Étape 1: Le robot télécharge la dernière version de votre code depuis GitHub
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Étape 2: Il installe Node.js, qui est nécessaire pour utiliser 'clasp'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Étape 3: Il installe l'outil 'clasp' sur la machine virtuelle
+      - name: Install clasp
+        run: npm install -g @google/clasp
+
+      # Étape 4: Il se connecte à votre compte Google en utilisant le secret que nous avons créé
+      - name: Create .clasprc.json authentication file
+        run: echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
+
+      # Étape 5: Il pousse les fichiers vers votre projet Google Apps Script.
+      # Le '--force' est important pour s'assurer que le fichier appsscript.json est bien mis à jour.
+      - name: Push files to Google Apps Script
+        run: clasp push --force
